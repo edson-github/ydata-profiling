@@ -34,7 +34,7 @@ def get_missing_items(config: Settings, summary: BaseDescription) -> list:
     Returns:
         A list with the missing diagrams
     """
-    items = [
+    return [
         ImageWidget(
             item["matrix"],
             image_format=config.plot.image_format,
@@ -63,8 +63,6 @@ def get_missing_items(config: Settings, summary: BaseDescription) -> list:
         )
         for key, item in summary.missing.items()
     ]
-
-    return items
 
 
 def render_variables_section(
@@ -138,34 +136,31 @@ def render_variables_section(
             "alert_fields": alert_fields,
         }
 
-        template_variables.update(summary)
+        template_variables |= summary
 
         # Per type template variables
         if isinstance(summary["type"], list):
             types = set(summary["type"])
             if len(types) == 1:
                 variable_type = list(types)[0]
-            else:
-                # This logic may be treated by the typeset
-                if (types == {"Numeric", "Categorical"}) or types == {
+            elif types in [
+                {"Numeric", "Categorical"},
+                {
                     "Categorical",
                     "Unsupported",
-                }:
-                    # Treating numeric as categorical, if one is unsupported, still render as categorical
-                    variable_type = "Categorical"
-                else:
-                    raise ValueError(f"Types for {idx} are not compatible: {types}")
+                },
+            ]:
+                # Treating numeric as categorical, if one is unsupported, still render as categorical
+                variable_type = "Categorical"
+            else:
+                raise ValueError(f"Types for {idx} are not compatible: {types}")
         else:
             variable_type = summary["type"]
         render_map_type = render_map.get(variable_type, render_map["Unsupported"])
         template_variables.update(render_map_type(config, template_variables))
 
         # Ignore these
-        if reject_variables:
-            ignore = AlertType.REJECTED in alert_types
-        else:
-            ignore = False
-
+        ignore = AlertType.REJECTED in alert_types if reject_variables else False
         bottom = None
         if "bottom" in template_variables and template_variables["bottom"] is not None:
             btn = ToggleButton("More details", anchor_id=template_variables["varid"])
@@ -203,14 +198,14 @@ def get_duplicates_items(
             if any(generator):
                 return items
 
-            for idx, df in enumerate(duplicates):
-                items.append(
-                    Duplicate(
-                        duplicate=df,
-                        name=config.html.style._labels[idx],
-                        anchor_id="duplicates",
-                    )
+            items.extend(
+                Duplicate(
+                    duplicate=df,
+                    name=config.html.style._labels[idx],
+                    anchor_id="duplicates",
                 )
+                for idx, df in enumerate(duplicates)
+            )
         else:
             items.append(
                 Duplicate(
@@ -255,34 +250,34 @@ def get_sample_items(config: Settings, sample: dict) -> List[Renderable]:
     """
     items: List[Renderable] = []
     if isinstance(sample, tuple):
-        for s in zip(*sample):
-            items.append(
-                Container(
-                    [
-                        Sample(
-                            sample=obj.data,
-                            name=config.html.style._labels[idx],
-                            anchor_id=obj.id,
-                            caption=obj.caption,
-                        )
-                        for idx, obj in enumerate(s)
-                    ],
-                    sequence_type="batch_grid",
-                    batch_size=len(sample),
-                    anchor_id=f"sample_{slugify(s[0].name)}",
-                    name=s[0].name,
-                )
+        items.extend(
+            Container(
+                [
+                    Sample(
+                        sample=obj.data,
+                        name=config.html.style._labels[idx],
+                        anchor_id=obj.id,
+                        caption=obj.caption,
+                    )
+                    for idx, obj in enumerate(s)
+                ],
+                sequence_type="batch_grid",
+                batch_size=len(sample),
+                anchor_id=f"sample_{slugify(s[0].name)}",
+                name=s[0].name,
             )
+            for s in zip(*sample)
+        )
     else:
-        for obj in sample:
-            items.append(
-                Sample(
-                    sample=obj.data,
-                    name=obj.name,
-                    anchor_id=obj.id,
-                    caption=obj.caption,
-                )
+        items.extend(
+            Sample(
+                sample=obj.data,
+                name=obj.name,
+                anchor_id=obj.id,
+                caption=obj.caption,
             )
+            for obj in sample
+        )
     return items
 
 

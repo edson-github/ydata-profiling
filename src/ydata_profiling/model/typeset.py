@@ -155,6 +155,8 @@ def typeset_types(config: Settings) -> Set[visions.VisionsBaseType]:
             )
             return has_builtin_datetime
 
+
+
     class Categorical(visions.VisionsBaseType):
         """Type for categorical columns.
         Categorical columns in pandas categorical format
@@ -208,9 +210,8 @@ def typeset_types(config: Settings) -> Set[visions.VisionsBaseType]:
             is_valid_dtype = pdt.is_categorical_dtype(series) and not pdt.is_bool_dtype(
                 series
             )
-            if is_valid_dtype:
-                return True
-            return False
+            return bool(is_valid_dtype)
+
 
     class Boolean(visions.VisionsBaseType):
         """Type for boolean columns."""

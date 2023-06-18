@@ -13,7 +13,7 @@ from ydata_profiling.model.pandas.correlations_pandas import (
 @pytest.fixture
 def test_dataframe():
     size = 50
-    dataframe = pd.DataFrame(
+    return pd.DataFrame(
         {
             "float_1": np.random.rand(size),
             "float_2": np.random.rand(size),
@@ -31,7 +31,6 @@ def test_dataframe():
             ).astype(str),
         }
     )
-    return dataframe
 
 
 @pytest.fixture
@@ -41,7 +40,7 @@ def test_config():
 
 @pytest.fixture
 def test_summary():
-    summary = {
+    return {
         "float_1": {"type": "Numeric", "n_distinct": 10},
         "float_2": {"type": "Numeric", "n_distinct": 10},
         "integer_1": {"type": "Numeric", "n_distinct": 10},
@@ -49,8 +48,6 @@ def test_summary():
         "string_1": {"type": "Categorical", "n_distinct": 10},
         "string_2": {"type": "Categorical", "n_distinct": 10},
     }
-
-    return summary
 
 
 def test_auto_compute_all(test_config, test_dataframe, test_summary):

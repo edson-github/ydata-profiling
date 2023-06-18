@@ -17,9 +17,7 @@ def df(spark_session):
             "year": [1998, 1999, 2000, 2001, 2002] * 50,
         }
     )
-    # Turn the data into a Spark DataFrame, self.spark comes from our PySparkTest base class
-    data_spark = spark_session.createDataFrame(data_pandas)
-    return data_spark
+    return spark_session.createDataFrame(data_pandas)
 
 
 @pytest.fixture()
@@ -33,8 +31,7 @@ def df_empty(spark_session):
             StructField("year", IntegerType(), True),
         }
     )
-    data_spark = spark_session.createDataFrame(data_pandas, schema=schema)
-    return data_spark
+    return spark_session.createDataFrame(data_pandas, schema=schema)
 
 
 def test_spark_get_sample(df):

@@ -24,6 +24,6 @@ def describe_boolean_1d_spark(
 
     # get the most common boolean value and its frequency
     top = value_counts.first()
-    summary.update({"top": top[0], "freq": top[1]})
+    summary |= {"top": top[0], "freq": top[1]}
 
     return config, df, summary

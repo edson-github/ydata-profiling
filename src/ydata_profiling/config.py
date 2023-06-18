@@ -19,9 +19,8 @@ def _merge_dictionaries(dict1: dict, dict2: dict) -> dict:
         if isinstance(val, dict):
             dict2_node = dict2.setdefault(key, {})
             _merge_dictionaries(val, dict2_node)
-        else:
-            if key not in dict2:
-                dict2[key] = val
+        elif key not in dict2:
+            dict2[key] = val
 
     return dict2
 
@@ -476,16 +475,11 @@ class Config:
 
     @staticmethod
     def shorthands(kwargs: dict, split: bool = True) -> Tuple[dict, dict]:
-        shorthand_args = {}
-        if not split:
-            shorthand_args = kwargs
+        shorthand_args = kwargs if not split else {}
         for key, value in list(kwargs.items()):
             if value is None and key in Config._shorthands:
                 shorthand_args[key] = Config._shorthands[key]
                 if split:
                     del kwargs[key]
 
-        if split:
-            return shorthand_args, kwargs
-        else:
-            return shorthand_args, {}
+        return (shorthand_args, kwargs) if split else (shorthand_args, {})

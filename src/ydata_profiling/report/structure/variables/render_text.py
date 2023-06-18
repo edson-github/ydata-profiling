@@ -80,9 +80,6 @@ def render_text(config: Settings, summary: Dict[str, Any]) -> Dict[str, Any]:
         top_items.append(mini_wordcloud)
     template_variables["top"] = Container(top_items, sequence_type="grid")
 
-    # ============================================================================================
-
-    bottom_items = []
     overview_items = []
     # length isn't being computed for categorical in spark
     if length and "max_length" in summary:
@@ -136,8 +133,7 @@ def render_text(config: Settings, summary: Dict[str, Any]) -> Dict[str, Any]:
         batch_size=len(overview_items),
         titles=False,
     )
-    bottom_items.append(overview)
-
+    bottom_items = [overview]
     if words and "word_counts" in summary:
         woc = freq_table(
             freqtable=summary["word_counts"],

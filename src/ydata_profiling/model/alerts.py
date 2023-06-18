@@ -256,14 +256,13 @@ class HighCorrelationAlert(Alert):
         )
 
     def _get_description(self) -> str:
-        if self.values is not None:
-            description = f"[{self.column_name}] is highly {self.values['corr']} correlated with [{self.values['fields'][0]}]"
-            if len(self.values["fields"]) > 1:
-                description += f" and {len(self.values['fields']) - 1} other fields"
-        else:
+        if self.values is None:
             return (
                 f"[{self.column_name}] has a high correlation with one or more colums"
             )
+        description = f"[{self.column_name}] is highly {self.values['corr']} correlated with [{self.values['fields'][0]}]"
+        if len(self.values["fields"]) > 1:
+            description += f" and {len(self.values['fields']) - 1} other fields"
         return description
 
 
@@ -681,14 +680,14 @@ def check_correlation_alerts(config: Settings, correlations: dict) -> List[Alert
                 set(fields).update(set(correlated_mapping.get(col, [])))
                 correlations_consolidated[col] = fields
 
-    if len(correlations_consolidated) > 0:
-        for col, fields in correlations_consolidated.items():
-            alerts.append(
-                HighCorrelationAlert(
-                    column_name=col,
-                    values={"corr": "overall", "fields": fields},
-                )
+    if correlations_consolidated:
+        alerts.extend(
+            HighCorrelationAlert(
+                column_name=col,
+                values={"corr": "overall", "fields": fields},
             )
+            for col, fields in correlations_consolidated.items()
+        )
     return alerts
 
 

@@ -15,10 +15,7 @@ def compose(functions: Sequence[Callable]) -> Callable:
     def func(f: Callable, g: Callable) -> Callable:
         def func2(*x) -> Any:
             res = g(*x)
-            if type(res) == bool:
-                return f(*x)
-            else:
-                return f(*res)
+            return f(*x) if type(res) == bool else f(*res)
 
         return func2
 
@@ -65,7 +62,7 @@ class Handler:
 def get_render_map() -> Dict[str, Callable]:
     import ydata_profiling.report.structure.variables as render_algorithms
 
-    render_map = {
+    return {
         "Boolean": render_algorithms.render_boolean,
         "Numeric": render_algorithms.render_real,
         "Complex": render_algorithms.render_complex,
@@ -79,5 +76,3 @@ def get_render_map() -> Dict[str, Callable]:
         "Unsupported": render_algorithms.render_generic,
         "TimeSeries": render_algorithms.render_timeseries,
     }
-
-    return render_map

@@ -13,7 +13,7 @@ check_is_NaN = "ydata_profiling.check_is_NaN"
 
 @pytest.fixture
 def describe_data():
-    data = {
+    return {
         "id": [chr(97 + c) for c in range(1, 9)] + ["d"],
         "x": [50, 50, -10, 0, 0, 5, 15, -3, np.nan],
         "y": [
@@ -79,7 +79,6 @@ def describe_data():
         "mixed": [1, 2, "a", 4, 5, 6, 7, 8, 9],
         "dict": [{"hello": "there", "General": "Kenobi"}],
     }
-    return data
 
 
 @pytest.fixture
@@ -370,9 +369,7 @@ def test_describe_spark_df(
     if column == "mixed":
         describe_data[column] = [str(i) for i in describe_data[column]]
     if column == "bool_tf_with_nan":
-        describe_data[column] = [
-            True if i else False for i in describe_data[column]  # noqa: SIM210
-        ]
+        describe_data[column] = [bool(i) for i in describe_data[column]]
     sdf = spark_session.createDataFrame(pd.DataFrame({column: describe_data[column]}))
 
     results = describe(cfg, sdf, summarizer, typeset)

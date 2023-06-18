@@ -29,7 +29,7 @@ from ydata_profiling.visualisation.plot import cat_frequency_plot, histogram
 def render_categorical_frequency(
     config: Settings, summary: dict, varid: str
 ) -> Renderable:
-    frequency_table = Table(
+    return Table(
         [
             {
                 "name": "Unique",
@@ -49,8 +49,6 @@ def render_categorical_frequency(
         anchor_id=f"{varid}_unique_stats",
         style=config.html.style,
     )
-
-    return frequency_table
 
 
 def render_categorical_length(
@@ -109,11 +107,7 @@ def render_categorical_length(
 
 def _get_n(value: Union[list, pd.DataFrame]) -> Union[int, List[int]]:
     """Helper function to deal with multiple values"""
-    if isinstance(value, list):
-        n = [v.sum() for v in value]
-    else:
-        n = value.sum()
-    return n
+    return [v.sum() for v in value] if isinstance(value, list) else value.sum()
 
 
 def render_categorical_unicode(

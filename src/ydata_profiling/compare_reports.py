@@ -112,9 +112,8 @@ def _update_titles(reports: List[ProfileReport]) -> None:
 def _compare_title(titles: List[str]) -> str:
     if all(titles[0] == title for title in titles[1:]):
         return titles[0]
-    else:
-        title = ", ".join(titles[:-1])
-        return f"<em>Comparing</em> {title} <em>and</em> {titles[-1]}"
+    title = ", ".join(titles[:-1])
+    return f"<em>Comparing</em> {title} <em>and</em> {titles[-1]}"
 
 
 def _compare_profile_report_preprocess(
@@ -131,12 +130,11 @@ def _compare_profile_report_preprocess(
                 report.config.html.style.primary_colors = [
                     report.config.html.style.primary_colors[idx]
                 ]
-    else:
-        if len(config.html.style.primary_colors) > 1:
-            for idx, report in enumerate(reports):
-                report.config.html.style.primary_colors = (
-                    config.html.style.primary_colors
-                )
+    elif len(config.html.style.primary_colors) > 1:
+        for report in reports:
+            report.config.html.style.primary_colors = (
+                config.html.style.primary_colors
+            )
 
     # enforce same types
     for report in reports[1:]:
@@ -191,7 +189,7 @@ def validate_reports(
     else:
         features = [set(r.variables.keys()) for r in reports]  # type: ignore
 
-    if not all(features[0] == x for x in features):
+    if any(features[0] != x for x in features):
         warnings.warn(
             "The datasets being profiled have a different set of columns. "
             "Only the left side profile will be calculated."
@@ -310,7 +308,7 @@ def compare(
             cols_2_compare = [
                 col for col in base_features if col in list(report.variables.keys())  # type: ignore
             ]
-            if len(cols_2_compare) > 0:
+            if cols_2_compare:
                 non_empty_reports += 1
         if non_empty_reports == 0:
             profile = ProfileReport(None, config=all_configs[0])
