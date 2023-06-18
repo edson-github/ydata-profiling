@@ -84,7 +84,7 @@ def pandas_get_series_descriptions(
     if pool_size <= 0:
         pool_size = multiprocessing.cpu_count()
 
-    args = [(name, series) for name, series in df.items()]
+    args = list(df.items())
     series_description = {}
 
     if pool_size == 1:

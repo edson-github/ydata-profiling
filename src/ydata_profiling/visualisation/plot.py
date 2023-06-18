@@ -491,9 +491,9 @@ def cat_frequency_plot(
 
     # If there are more categories than colors, loop through the colors again
     if len(colors) < len(data):
-        multiplier = int(len(data) / len(colors)) + 1
+        multiplier = len(data) // len(colors) + 1
         colors = multiplier * colors  # repeat colors as required
-        colors = colors[0 : len(data)]  # select the exact number of colors required
+        colors = colors[:len(data)]
 
     # Create the plot
     plot_type = config.plot.cat_freq.type
@@ -714,11 +714,7 @@ def _prepare_heatmap_data(
     df = df.groupby([entity_column, "__bins"])[sortbykey].count()
     df = df.reset_index().pivot_table(entity_column, "__bins", sortbykey).T
 
-    if selected_entities:
-        df = df[selected_entities].T
-    else:
-        df = df.T[:max_entities]
-
+    df = df[selected_entities].T if selected_entities else df.T[:max_entities]
     return df
 
 

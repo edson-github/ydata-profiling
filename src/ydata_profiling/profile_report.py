@@ -99,19 +99,16 @@ class ProfileReport(SerializeReport, ExpectationsReport):
         """
         self.__validate_inputs(df, minimal, tsmode, config_file, lazy)
 
-        if config_file or minimal:
-            if not config_file:
-                config_file = get_config("config_minimal.yaml")
+        if config_file:
+            report_config = Settings().from_file(config_file)
+        elif minimal:
+            config_file = get_config("config_minimal.yaml")
 
             report_config = Settings().from_file(config_file)
         elif config is not None:
             report_config = config
         else:
-            if isinstance(df, pd.DataFrame):
-                report_config = Settings()
-            else:
-                report_config = SparkSettings()
-
+            report_config = Settings() if isinstance(df, pd.DataFrame) else SparkSettings()
         groups = [
             (explorative, "explorative"),
             (sensitive, "sensitive"),
@@ -126,7 +123,7 @@ class ProfileReport(SerializeReport, ExpectationsReport):
                     cfg = cfg.update(Config.get_arg_groups(key))
             report_config = cfg.update(report_config.dict(exclude_defaults=True))
 
-        if len(kwargs) > 0:
+        if kwargs:
             shorthands, kwargs = Config.shorthands(kwargs)
             report_config = (
                 Settings()
@@ -222,10 +219,9 @@ class ProfileReport(SerializeReport, ExpectationsReport):
                 "'subset' parameter should be None, 'rendering' or 'report'"
             )
 
-        if subset is None or subset in ["rendering", "report"]:
-            self._widgets = None
-            self._json = None
-            self._html = None
+        self._widgets = None
+        self._json = None
+        self._html = None
 
         if subset is None or subset == "report":
             self._report = None
@@ -347,7 +343,7 @@ class ProfileReport(SerializeReport, ExpectationsReport):
             if not self.config.html.inline:
                 self.config.html.assets_path = str(output_file.parent)
                 if self.config.html.assets_prefix is None:
-                    self.config.html.assets_prefix = str(output_file.stem) + "_assets"
+                    self.config.html.assets_prefix = f"{str(output_file.stem)}_assets"
                 create_html_assets(self.config, output_file)
 
             data = self.to_html()
@@ -426,23 +422,22 @@ class ProfileReport(SerializeReport, ExpectationsReport):
                 o = asdict(o)
             if isinstance(o, dict):
                 return {encode_it(k): encode_it(v) for k, v in o.items()}
+            if isinstance(o, (bool, int, float, str)):
+                return o
+            elif isinstance(o, list):
+                return [encode_it(v) for v in o]
+            elif isinstance(o, set):
+                return {encode_it(v) for v in o}
+            elif isinstance(o, (pd.DataFrame, pd.Series)):
+                return encode_it(o.to_dict(orient="records"))
+            elif isinstance(o, np.ndarray):
+                return encode_it(o.tolist())
+            elif isinstance(o, Sample):
+                return encode_it(o.dict())
+            elif isinstance(o, np.generic):
+                return o.item()
             else:
-                if isinstance(o, (bool, int, float, str)):
-                    return o
-                elif isinstance(o, list):
-                    return [encode_it(v) for v in o]
-                elif isinstance(o, set):
-                    return {encode_it(v) for v in o}
-                elif isinstance(o, (pd.DataFrame, pd.Series)):
-                    return encode_it(o.to_dict(orient="records"))
-                elif isinstance(o, np.ndarray):
-                    return encode_it(o.tolist())
-                elif isinstance(o, Sample):
-                    return encode_it(o.dict())
-                elif isinstance(o, np.generic):
-                    return o.item()
-                else:
-                    return str(o)
+                return str(o)
 
         description = self.description_set
 

@@ -25,9 +25,7 @@ def df():
     except (requests.exceptions.ConnectionError, FileNotFoundError):
         return
 
-    # Download the UCI Bank Marketing Dataset
-    df = pd.read_csv(zf.open("bank-full.csv"), sep=";")
-    return df
+    return pd.read_csv(zf.open("bank-full.csv"), sep=";")
 
 
 @pytest.mark.skipif(sys.version_info < (3, 6), reason="requires python3.6 or higher")

@@ -8,9 +8,14 @@ from ydata_profiling import ProfileReport
 
 @pytest.fixture()
 def df():
-    df = pd.DataFrame(
+    return pd.DataFrame(
         {
-            "name": ["John Doe", "Marco Polo", "Louis Brandeis", "William Douglas"],
+            "name": [
+                "John Doe",
+                "Marco Polo",
+                "Louis Brandeis",
+                "William Douglas",
+            ],
             "year": [1965, 1271, 1916, 1975],
             "tf": [True, False, False, True],
             "date": pd.to_datetime(
@@ -18,7 +23,6 @@ def df():
             ),
         }
     )
-    return df
 
 
 def test_sensitive(df: pd.DataFrame):

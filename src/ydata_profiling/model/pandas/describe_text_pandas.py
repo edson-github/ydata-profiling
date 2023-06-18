@@ -41,10 +41,10 @@ def pandas_describe_text_1d(
     value_counts = summary["value_counts_without_nan"]
     value_counts.index = value_counts.index.astype(str)
 
-    summary.update({"first_rows": series.head(5)})
+    summary["first_rows"] = series.head(5)
 
     if config.vars.text.length:
-        summary.update(length_summary_vc(value_counts))
+        summary |= length_summary_vc(value_counts)
         summary.update(
             histogram_compute(
                 config,

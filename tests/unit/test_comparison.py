@@ -9,8 +9,7 @@ from ydata_profiling.compare_reports import _compare_title
 @pytest.fixture()
 def reports():
     df = pd.DataFrame(["a", "b", "c"])
-    reports = [ProfileReport(df, title=f"report {idx}") for idx in range(5)]
-    return reports
+    return [ProfileReport(df, title=f"report {idx}") for idx in range(5)]
 
 
 def test_compare_single(reports):

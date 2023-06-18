@@ -117,7 +117,4 @@ def get_correlation_items(
         anchor_id="correlations_tab",
     )
 
-    if len(items) > 0:
-        return corr
-
-    return None
+    return corr if items else None

@@ -65,10 +65,7 @@ def describe_numeric_1d_spark(
     summary["n_infinite"] = n_infinite
 
     n_zeros = value_counts.where(f"{df.columns[0]} = 0").first()
-    if n_zeros is None:
-        n_zeros = 0
-    else:
-        n_zeros = n_zeros["count"]
+    n_zeros = 0 if n_zeros is None else n_zeros["count"]
     summary["n_zeros"] = n_zeros
 
     n_negative = (
@@ -85,19 +82,17 @@ def describe_numeric_1d_spark(
     quantiles = config.vars.num.quantiles
     quantile_threshold = 0.05
 
-    summary.update(
-        {
-            f"{percentile:.0%}": value
-            for percentile, value in zip(
+    summary |= {
+        f"{percentile:.0%}": value
+        for percentile, value in zip(
+            quantiles,
+            df.stat.approxQuantile(
+                f"{df.columns[0]}",
                 quantiles,
-                df.stat.approxQuantile(
-                    f"{df.columns[0]}",
-                    quantiles,
-                    quantile_threshold,
-                ),
-            )
-        }
-    )
+                quantile_threshold,
+            ),
+        )
+    }
 
     median = summary["50%"]
 
@@ -126,13 +121,11 @@ def describe_numeric_1d_spark(
     infinity_values = [np.inf, -np.inf]
     infinity_index = summary["value_counts_without_nan"].index.isin(infinity_values)
 
-    summary.update(
-        histogram_compute(
-            config,
-            summary["value_counts_without_nan"][~infinity_index].index.values,
-            summary["n_distinct"],
-            weights=summary["value_counts_without_nan"][~infinity_index].values,
-        )
+    summary |= histogram_compute(
+        config,
+        summary["value_counts_without_nan"][~infinity_index].index.values,
+        summary["n_distinct"],
+        weights=summary["value_counts_without_nan"][~infinity_index].values,
     )
 
     return config, df, summary

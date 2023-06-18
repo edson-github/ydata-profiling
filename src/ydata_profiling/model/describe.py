@@ -171,7 +171,7 @@ def describe(
 
     analysis = BaseAnalysis(config.title, date_start, date_end)
 
-    description = BaseDescription(
+    return BaseDescription(
         analysis=analysis,
         table=table_stats,
         variables=series_description,
@@ -183,4 +183,3 @@ def describe(
         sample=samples,
         duplicates=duplicates,
     )
-    return description

@@ -35,7 +35,7 @@ def describe_date_1d_spark(
     col_name = df.columns[0]
     stats = date_stats_spark(df, summary)
 
-    summary.update({"min": stats["min"], "max": stats["max"]})
+    summary |= {"min": stats["min"], "max": stats["max"]}
 
     summary["range"] = summary["max"] - summary["min"]
 
@@ -49,5 +49,5 @@ def describe_date_1d_spark(
     # Run the histogram
     bin_edges, hist = df.select(col_name).rdd.flatMap(lambda x: x).histogram(bins_arg)
 
-    summary.update({"histogram": (array(hist), array(bin_edges))})
+    summary["histogram"] = (array(hist), array(bin_edges))
     return config, df, summary

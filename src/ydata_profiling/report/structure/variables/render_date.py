@@ -13,8 +13,6 @@ from ydata_profiling.visualisation.plot import histogram, mini_histogram
 
 def render_date(config: Settings, summary: Dict[str, Any]) -> Dict[str, Any]:
     varid = summary["varid"]
-    template_variables = {}
-
     image_format = config.plot.image_format
 
     # Top
@@ -86,10 +84,11 @@ def render_date(config: Settings, summary: Dict[str, Any]) -> Dict[str, Any]:
             alt="Mini histogram",
         )
 
-    template_variables["top"] = Container(
-        [info, table1, table2, mini_histo], sequence_type="grid"
-    )
-
+    template_variables = {
+        "top": Container(
+            [info, table1, table2, mini_histo], sequence_type="grid"
+        )
+    }
     if isinstance(summary["histogram"], list):
         hist_data = histogram(
             config,

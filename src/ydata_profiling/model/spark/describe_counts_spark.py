@@ -24,11 +24,7 @@ def describe_counts_spark(
     value_counts_index_sorted = value_counts.sort(series.columns[0], ascending=True)
 
     n_missing = value_counts.where(value_counts[series.columns[0]].isNull()).first()
-    if n_missing is None:
-        n_missing = 0
-    else:
-        n_missing = n_missing["count"]
-
+    n_missing = 0 if n_missing is None else n_missing["count"]
     # FIXME: reduce to top-n and bottom-n
     value_counts_index_sorted = (
         value_counts_index_sorted.limit(200)
